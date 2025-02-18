@@ -19,7 +19,8 @@ defmodule LiveViewStudio.MixProject do
   def application do
     [
       mod: {LiveViewStudio.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
+      env: [port: 4001]
     ]
   end
 
