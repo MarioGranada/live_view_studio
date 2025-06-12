@@ -4,11 +4,11 @@ defmodule LiveViewStudio.Athletes.Athlete do
 
   schema "athletes" do
     field :name, :string
+    field :status, Ecto.Enum, values: [:training, :competing, :resting]
     field :emoji, :string
     field :sport, :string
-    field :status, Ecto.Enum, values: [:training, :competing, :resting]
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false
