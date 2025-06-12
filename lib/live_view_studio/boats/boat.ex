@@ -3,12 +3,12 @@ defmodule LiveViewStudio.Boats.Boat do
   import Ecto.Changeset
 
   schema "boats" do
-    field :model, :string
     field :type, :string
-    field :price, :string
     field :image, :string
+    field :model, :string
+    field :price, :string
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc false
