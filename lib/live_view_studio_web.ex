@@ -85,6 +85,8 @@ defmodule LiveViewStudioWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import LiveViewStudioWeb.CoreComponents
+      import LiveViewStudioWeb.CustomComponents
+      # Customo components are imported globally and are ready to use in any LiveView page
       import LiveViewStudioWeb.Gettext
 
       # Shortcut for generating JS commands
