@@ -9,11 +9,29 @@ defmodule LiveViewStudioWeb.ServersLive do
     socket =
       assign(socket,
         servers: servers,
-        selected_server: hd(servers),
         coffees: 0
       )
 
     {:ok, socket}
+  end
+
+  def handle_params(%{"id" => id}, _uri, socket) do
+    IO.puts("in here oe ***********************")
+    IO.inspect(id)
+    server = Servers.get_server!(id)
+    {:noreply, assign(socket, selected_server: server, page_title: "What's up #{server.name}?")}
+
+    # server = Servers.get_server!(id)
+
+    # {:noreply,
+    #  assign(socket,
+    #    selected_server: server,
+    #    page_title: "What's up #{server.name}?"
+    #  )}
+  end
+
+  def handle_params(_, _uri, socket) do
+    {:noreply, assign(socket, selected_server: hd(socket.assigns.servers))}
   end
 
   def render(assigns) do
@@ -22,13 +40,50 @@ defmodule LiveViewStudioWeb.ServersLive do
     <div id="servers">
       <div class="sidebar">
         <div class="nav">
-          <a
+          <%!-- <a
             :for={server <- @servers}
+            href={~p"/servers/#{server.id}"}
+            class={if server == @selected_server, do: "selected"}
+          > --%>
+
+          <%!--href={~p"/servers?#{[id: server]}"}  --> It takes id as default param, but it maps any params in the keyword list  --%>
+          <%!-- <a
+            :for={server <- @servers}
+            href={~p"/servers?#{[id: server.id]}"}
             class={if server == @selected_server, do: "selected"}
           >
             <span class={server.status}></span>
             <%= server.name %>
-          </a>
+          </a> --%>
+
+          <%!-- <.link> included by default in liveview projects --%>
+          <%!--
+          <.link
+            :for={server <- @servers}
+            href={~p"/servers?#{[id: server]}"}
+            class={if server == @selected_server, do: "selected"}
+          >
+            <span class={server.status}></span>
+            <%= server.name %>
+          </.link> --%>
+
+          <%!-- <.link
+            :for={server <- @servers}
+            patch={~p"/servers?#{[id: server]}"}
+            class={if server == @selected_server, do: "selected"}
+          >
+            <span class={server.status}></span>
+            <%= server.name %>
+          </.link> --%>
+
+          <.link
+            :for={server <- @servers}
+            patch={~p"/servers/#{server}"}
+            class={if server == @selected_server, do: "selected"}
+          >
+            <span class={server.status}></span>
+            <%= server.name %>
+          </.link>
         </div>
         <div class="coffees">
           <button phx-click="drink">
@@ -64,7 +119,11 @@ defmodule LiveViewStudioWeb.ServersLive do
               </blockquote>
             </div>
           </div>
-          <div class="links"></div>
+          <div class="links">
+            <.link navigate={~p"/light"}>
+              Adjust Links
+            </.link>
+          </div>
         </div>
       </div>
     </div>
