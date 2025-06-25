@@ -35,7 +35,7 @@ defmodule LiveViewStudioWeb.PizzaOrdersLive do
 
   def sort_link(assigns) do
     ~H"""
-    <.link patch={~p"/donations?#{%{sort_by: @sort_by, sort_order: next_sort_order( @options.sort_order)}}"} >
+    <.link patch={~p"/pizza-orders?#{%{sort_by: @sort_by, sort_order: next_sort_order( @options.sort_order)}}"} >
 
     <%= render_slot(@inner_block) %> <span><%= sort_indicator(@sort_by, @options) %></span>
     </.link>
@@ -61,7 +61,7 @@ defmodule LiveViewStudioWeb.PizzaOrdersLive do
   defp sort_indicator(_, _), do: ""
 
   defp valid_sort_by(%{"sort_by" => sort_by})
-       when sort_by in ~w(item quantity days_until_expires) do
+       when sort_by in ~w(size style topping_1 topping_2 price) do
     String.to_atom(sort_by)
   end
 
