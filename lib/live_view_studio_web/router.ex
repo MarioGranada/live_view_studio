@@ -37,6 +37,7 @@ defmodule LiveViewStudioWeb.Router do
     live "/vehicles", VehiclesLive
     live "/athletes", AthletesLive
     live "/pizza-orders", PizzaOrdersLive
+    live "/servers/new", ServersLive, :new
     live "/servers/:id", ServersLive
   end
 
