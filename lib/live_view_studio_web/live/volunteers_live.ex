@@ -9,11 +9,14 @@ defmodule LiveViewStudioWeb.VolunteersLive do
 
     changeset = Volunteers.change_volunteer(%Volunteer{})
 
+    # socket =
+    #   assign(socket,
+    #     volunteers: volunteers,
+    #     form: to_form(changeset)
+    #   )
+
     socket =
-      assign(socket,
-        volunteers: volunteers,
-        form: to_form(changeset)
-      )
+      socket |> stream(:volunteers, volunteers) |> assign(:form, to_form(changeset))
 
     {:ok, socket}
   end
@@ -27,9 +30,15 @@ defmodule LiveViewStudioWeb.VolunteersLive do
         <.input field={@form[:phone]} type="tel" placeholder="Phone" autocomplete="off" phx-debounce="blur" />
         <.button phx-disable-with="Saving...">Check In</.button>
       </.form>
-      <div
+      <%!-- <div
         :for={volunteer <- @volunteers}
         class={"volunteer #{if volunteer.checked_out, do: "out"}"}
+      > --%>
+      <div id="volunteers" phx-update="stream">
+      <div
+        :for={{vaolunteer_dom_id, volunteer} <- @streams.volunteers}
+        class={"volunteer #{if volunteer.checked_out, do: "out"}"}
+        id={vaolunteer_dom_id}
       >
         <div class="name">
           <%= volunteer.name %>
@@ -43,6 +52,7 @@ defmodule LiveViewStudioWeb.VolunteersLive do
           </button>
         </div>
       </div>
+      </div>
     </div>
     """
   end
@@ -50,7 +60,8 @@ defmodule LiveViewStudioWeb.VolunteersLive do
   def handle_event("save", %{"volunteer" => volunteer_params}, socket) do
     case Volunteers.create_volunteer(volunteer_params) do
       {:ok, volunteer} ->
-        socket = update(socket, :volunteers, fn volunteers -> [volunteer | volunteers] end)
+        # socket = update(socket, :volunteers, fn volunteers -> [volunteer | volunteers] end)
+        socket = stream_insert(socket, :volunteers, volunteer, at: 0)
         changeset = Volunteers.change_volunteer(%Volunteer{})
         socket = put_flash(socket, :info, "Volunteer successfully checked in!")
         {:noreply, assign(socket, :form, to_form(changeset))}
