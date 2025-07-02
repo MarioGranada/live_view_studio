@@ -20,8 +20,6 @@ defmodule LiveViewStudioWeb.ServersLive do
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
-    IO.puts("in here oe ***********************")
-    IO.inspect(id)
     server = Servers.get_server!(id)
     {:noreply, assign(socket, selected_server: server, page_title: "What's up #{server.name}?")}
 
@@ -119,18 +117,19 @@ defmodule LiveViewStudioWeb.ServersLive do
       <div class="main">
         <div class="wrapper">
           <%= if @live_action == :new do %>
-            <.form for={@form} phx-submit="save">
+            <.form for={@form} phx-submit="save" phx-change="validate">
               <div class="field">
-                <.input field={@form[:name]} placeholder="Name" />
+                <.input field={@form[:name]} placeholder="Name" phx-debounce="2000" />
               </div>
               <div class="field">
-                <.input field={@form[:framework]} placeholder="Framework" />
+                <.input field={@form[:framework]} placeholder="Framework" phx-debounce="2000" />
               </div>
               <div class="field">
                 <.input
                   field={@form[:size]}
                   placeholder="Size (MB)"
                   type="number"
+                  phx-debounce="blur"
                 />
               </div>
               <.button phx-disable-with="Saving...">
@@ -195,7 +194,7 @@ defmodule LiveViewStudioWeb.ServersLive do
             fn servers -> [server | servers] end
           )
 
-        changeset = Servers.change_server(%Server{})
+        # changeset = Servers.change_server(%Server{})
 
         socket = push_patch(socket, to: ~p"/servers/#{server}")
 
@@ -205,5 +204,12 @@ defmodule LiveViewStudioWeb.ServersLive do
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset))}
     end
+  end
+
+  def handle_event("validate", %{"server" => server_params}, socket) do
+    changeset =
+      %Server{} |> Servers.change_server(server_params) |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, :form, to_form(changeset))}
   end
 end
