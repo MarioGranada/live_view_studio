@@ -8,7 +8,7 @@ defmodule LiveViewStudioWeb.ServersLive do
   def mount(_params, _session, socket) do
     servers = Servers.list_servers()
 
-    changeset = Servers.change_server(%Server{})
+    # changeset = Servers.change_server(%Server{})
 
     socket =
       assign(socket,
@@ -38,7 +38,7 @@ defmodule LiveViewStudioWeb.ServersLive do
 
     socket =
       if socket.assigns.live_action == :new do
-        changeset = Servers.change_server(%Server{})
+        # changeset = Servers.change_server(%Server{})
 
         assign(socket,
           selected_server: nil
