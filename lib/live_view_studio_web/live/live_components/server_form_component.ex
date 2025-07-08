@@ -54,7 +54,10 @@ defmodule LiveViewStudioWeb.ServerFormComponent do
         # changeset = Servers.change_server(%Server{})
 
         # socket = push_patch(socket, to: ~p"/servers/#{server}")
-        send(self(), {__MODULE__, :server_created, server})
+
+        # send(self(), {__MODULE__, :server_created, server})
+
+        socket = push_patch(socket, to: ~p"/servers/#{server}")
 
         # {:noreply, assign(socket, :form, to_form(changeset))}
         {:noreply, socket}

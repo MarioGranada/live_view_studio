@@ -6,6 +6,10 @@ defmodule LiveViewStudioWeb.ServersLive do
   alias LiveViewStudioWeb.ServerFormComponent
 
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Servers.subscribe()
+    end
+
     servers = Servers.list_servers()
 
     # changeset = Servers.change_server(%Server{})
@@ -191,20 +195,22 @@ defmodule LiveViewStudioWeb.ServersLive do
 
     {:ok, server} = Servers.update_server(server, %{status: new_status})
 
-    servers =
-      Enum.map(socket.assigns.servers, fn s ->
-        if s.id == server.id, do: server, else: s
-      end)
+    # servers =
+    #   Enum.map(socket.assigns.servers, fn s ->
+    #     if s.id == server.id, do: server, else: s
+    #   end)
 
     # {:noreply, assign(socket, selected_server: server, servers: Servers.list_servers())}
-    {:noreply, assign(socket, selected_server: server, servers: servers)}
+    # {:noreply, assign(socket, selected_server: server, servers: servers)}
+    {:noreply, assign(socket, selected_server: server)}
   end
 
   def handle_event("drink", _, socket) do
     {:noreply, update(socket, :coffees, &(&1 + 1))}
   end
 
-  def handle_info({ServerFormComponent, :server_created, server}, socket) do
+  # def handle_info({ServerFormComponent, :server_created, server}, socket) do
+  def handle_info({:server_created, server}, socket) do
     socket =
       update(
         socket,
@@ -212,7 +218,35 @@ defmodule LiveViewStudioWeb.ServersLive do
         fn servers -> [server | servers] end
       )
 
-    socket = push_patch(socket, to: ~p"/servers/#{server}")
+    IO.puts("in here oe server created***************************")
+    # socket = push_patch(socket, to: ~p"/servers/#{server}")
+    {:noreply, socket}
+  end
+
+  def handle_info({:server_updated, server}, socket) do
+    servers =
+      Enum.map(socket.assigns.servers, fn s ->
+        if s.id == server.id, do: server, else: s
+      end)
+
+    IO.puts("in here oe server updated***************************")
+    IO.inspect(socket.assigns.selected_server)
+    IO.puts("in here oe server updated server***************************")
+    IO.inspect(server)
+
+    socket =
+      socket
+      |> assign(servers: servers)
+      |> assign(
+        selected_server:
+          if(
+            socket.assigns.selected_server != nil &&
+              socket.assigns.selected_server.id == server.id,
+            do: server,
+            else: socket.assigns.selected_server
+          )
+      )
+
     {:noreply, socket}
   end
 end
