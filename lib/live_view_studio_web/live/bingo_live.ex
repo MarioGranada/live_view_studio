@@ -1,6 +1,8 @@
 defmodule LiveViewStudioWeb.BingoLive do
   use LiveViewStudioWeb, :live_view
 
+  # on_mount {LiveViewStudioWeb.UserAuth, :ensure_authenticated} # Managed by live_session hook on router
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       :timer.send_interval(3000, self(), :tick)
@@ -17,7 +19,7 @@ defmodule LiveViewStudioWeb.BingoLive do
 
   def render(assigns) do
     ~H"""
-    <h1>Bingo Boss 📢</h1>
+    <h1>Bingo Boss 📢 User id: <%= @current_user.id %></h1>
     <div id="bingo">
       <div class="number">
         <%= @number %>
