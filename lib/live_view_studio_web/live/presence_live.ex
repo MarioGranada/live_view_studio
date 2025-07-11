@@ -9,21 +9,29 @@ defmodule LiveViewStudioWeb.PresenceLive do
     %{current_user: current_user} = socket.assigns
 
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(LiveViewStudio.PubSub, @topic)
+      # Phoenix.PubSub.subscribe(LiveViewStudio.PubSub, @topic)
+      Presence.subscribe(@topic)
+
+      # {:ok, _} =
+      #   Presence.track(self(), @topic, current_user.id, %{
+      #     username: current_user.email |> String.split("@") |> hd(),
+      #     is_playing: false
+      #   })
 
       {:ok, _} =
-        Presence.track(self(), @topic, current_user.id, %{
-          username: current_user.email |> String.split("@") |> hd(),
+        Presence.track_user(@topic, current_user, %{
           is_playing: false
         })
     end
 
-    presences = Presence.list(@topic)
+    # presences = Presence.list(@topic)
+    presences = Presence.list_users(@topic)
 
     socket =
       socket
       |> assign(:is_playing, false)
-      |> assign(:presences, simple_presence_map(presences))
+      # |> assign(:presences, simple_presence_map(presences))
+      |> assign(:presences, Presence.simple_presence_map(presences))
       |> assign(:diff, nil)
 
     {:ok, socket}
@@ -75,25 +83,28 @@ defmodule LiveViewStudioWeb.PresenceLive do
 
     new_meta = %{meta | is_playing: socket.assigns.is_playing}
 
-    Presence.update(self(), @topic, current_user.id, new_meta)
+    # Presence.update(self(), @topic, current_user.id, new_meta)
+    Presence.update_user(current_user, @topic, new_meta)
 
     {:noreply, socket}
   end
 
   def handle_info(%{event: "presence_diff", payload: diff}, socket) do
-    socket = socket |> remove_presences(diff.leaves) |> add_presences(diff.joins)
+    # socket =
+    #   socket |> Presence.remove_presences(diff.leaves) |> Presence.add_presences(diff.joins)
+    socket = Presence.handle_diff("presence_diff", diff, socket)
 
     {:noreply, socket}
   end
 
-  defp remove_presences(socket, leaves) do
-    user_ids = Enum.map(leaves, fn {user_id, _} -> user_id end)
-    presences = Map.drop(socket.assigns.presences, user_ids)
-    assign(socket, :presences, presences)
-  end
+  # defp remove_presences(socket, leaves) do
+  #   user_ids = Enum.map(leaves, fn {user_id, _} -> user_id end)
+  #   presences = Map.drop(socket.assigns.presences, user_ids)
+  #   assign(socket, :presences, presences)
+  # end
 
-  defp add_presences(socket, joins) do
-    presences = Map.merge(socket.assigns.presences, simple_presence_map(joins))
-    assign(socket, :presences, presences)
-  end
+  # defp add_presences(socket, joins) do
+  #   presences = Map.merge(socket.assigns.presences, simple_presence_map(joins))
+  #   assign(socket, :presences, presences)
+  # end
 end
