@@ -21,7 +21,8 @@ defmodule LiveViewStudioWeb.Presence do
 
     track(self(), topic, user.id, %{
       username: user.email |> String.split("@") |> hd(),
-      is_playing: is_playing
+      is_playing: is_playing,
+      online_at: Timex.now() |> Timex.format!("%H:%M", :strftime)
     })
   end
 
