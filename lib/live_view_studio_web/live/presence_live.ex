@@ -2,6 +2,7 @@ defmodule LiveViewStudioWeb.PresenceLive do
   use LiveViewStudioWeb, :live_view
 
   alias LiveViewStudioWeb.Presence
+  alias Phoenix.LiveView.JS
 
   @topic "users:video"
 
@@ -46,8 +47,12 @@ defmodule LiveViewStudioWeb.PresenceLive do
     ~H"""
     <div id="presence">
       <div class="users">
-        <h2>Who's Here?</h2>
-        <ul>
+        <h2>Who's Here?
+          <button phx-click={toggle_presence_list()}>
+            <.icon name="hero-list-bullet-solid" />
+          </button>
+        </h2>
+        <ul id="presences">
         <li :for={{_user_id, meta} <- @presences}>
         <span class="status">
           <%= if meta.is_playing do %>
@@ -107,4 +112,17 @@ defmodule LiveViewStudioWeb.PresenceLive do
   #   presences = Map.merge(socket.assigns.presences, simple_presence_map(joins))
   #   assign(socket, :presences, presences)
   # end
+
+  def toggle_presence_list(js \\ %JS{}) do
+    js
+    |> JS.toggle(to: "#presences", in: "fade-in", out: "fade-out")
+    |> JS.remove_class(
+      "bg-slate-400",
+      to: ".hero-list-bullet-solid.bg-slate-400"
+    )
+    |> JS.add_class(
+      "bg-slate-400",
+      to: ".hero-list-bullet-solid:not(.bg-slate-400)"
+    )
+  end
 end

@@ -4,6 +4,7 @@ defmodule LiveViewStudioWeb.VolunteersLive do
   alias LiveViewStudio.Volunteers
   # alias LiveViewStudio.Volunteers.Volunteer
   alias LiveViewStudioWeb.VolunteerFormComponent
+  alias Phoenix.LiveView.JS
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -65,14 +66,24 @@ defmodule LiveViewStudioWeb.VolunteersLive do
           <%= @volunteer.phone %>
         </div>
         <div class="status">
-          <button phx-click="toggle-status" phx-value-id={@volunteer.id}>
+          <%!-- <button phx-click="toggle-status" phx-value-id={@volunteer.id}>
+            <%= if @volunteer.checked_out, do: "Check In", else: "Check Out" %>
+          </button> --%>
+          <button phx-click={toggle_volunteer_status(@volunteer.id, @id)}>
             <%= if @volunteer.checked_out, do: "Check In", else: "Check Out" %>
           </button>
         </div>
-        <.link
+        <%!-- <.link
           class="delete"
           phx-click="delete"
           phx-value-id={@volunteer.id}
+          data-confirm="Are you sure?">
+            <.icon name="hero-trash-solid" />
+        </.link> --%>
+
+        <.link
+          class="delete"
+          phx-click={delete_volunteer(@volunteer.id, @id)}
           data-confirm="Are you sure?">
             <.icon name="hero-trash-solid" />
         </.link>
@@ -117,5 +128,18 @@ defmodule LiveViewStudioWeb.VolunteersLive do
     socket = update(socket, :count, &(&1 - 1))
     socket = stream_delete(socket, :volunteers, volunteer)
     {:noreply, socket}
+  end
+
+  def toggle_volunteer_status(id, volunteer_dom_id) do
+    JS.push("toggle-status", value: %{:id => id})
+    |> JS.transition("shake", to: "##{volunteer_dom_id}", time: 500)
+  end
+
+  def delete_volunteer(id, volunteer_dom_id) do
+    JS.push("delete", value: %{:id => id})
+    |> JS.hide(
+      to: "##{volunteer_dom_id}",
+      transition: "ease duration-1000 scale-150"
+    )
   end
 end
