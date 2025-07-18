@@ -1,4 +1,34 @@
 <h1>Mike's Garage Sale</h1>
+
+
+<div class="flex overflow-x-auto">
+<div class="flex">
+<div class="w-[200px] h-[50px]"></div>
+<div class="w-[200px] h-[50px]"></div>
+<.button id="trigger-01" phx-click={show_popover("#popover-single-default")} data-testid="button-dropdown-top">
+Popover
+</.button>
+<.popover id="popover-single-default">
+    <div class="w-[200px] py-space-16 px-space-40 bg-white" data-testid="popover-top-content">
+    <ul class="">
+    
+    <li><.menu_item> 
+    <.checkbox label="option 1" checked={true} />
+     </.menu_item> </li>
+     <li><.menu_item> 
+    <.checkbox label="option 2" checked={false} />
+     </.menu_item> </li>
+     <li><.menu_item> 
+    <.checkbox label="option 3" checked={false} />
+     </.menu_item> </li>
+
+    </ul>
+    </div>
+  </.popover>
+</div>
+
+</div>
+
 <div id="shop">
   <div class="nav">
     <%!-- <button

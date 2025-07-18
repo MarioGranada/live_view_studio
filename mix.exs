@@ -44,6 +44,7 @@ defmodule LiveViewStudio.MixProject do
       {:phoenix_live_view, "~> 1.0.0-rc.6", override: true},
       {:heroicons, "~> 0.5"},
       {:floki, ">= 0.30.0", only: :test},
+      {:moon_live, "~> 3.14", organization: "coingaming"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},

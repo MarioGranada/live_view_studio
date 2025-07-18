@@ -3,6 +3,7 @@ defmodule LiveViewStudioWeb.ShopLive do
 
   alias LiveViewStudio.Products
   alias Phoenix.LiveView.JS
+  import MoonLive.{Popover, MenuItem, Checkbox}
 
   def mount(_params, _session, socket) do
     {:ok,
