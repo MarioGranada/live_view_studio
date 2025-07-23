@@ -25,7 +25,7 @@ defmodule LiveViewStudioWeb.LightLive do
     # Heex = HTML + ex
     ~H"""
     <h1>Front Porch Light</h1>
-    <div id="light">
+    <div id="light" phx-window-keyup="handle-window-keyup">
       <div class="meter">
         <span style={"width: #{@brightness}%; background-color: #{@hex_temperature}"}>
           <%!-- <%= assigns.brightness %> --%>
@@ -79,6 +79,20 @@ defmodule LiveViewStudioWeb.LightLive do
     """
   end
 
+  def handle_event("handle-window-keyup", %{"key" => "ArrowUp"}, socket) do
+    socket = bright_up(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("handle-window-keyup", %{"key" => "ArrowDown"}, socket) do
+    socket = bright_down(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("handle-window-keyup", _, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("on", _payload, socket) do
     socket = assign(socket, brightness: 100)
     {:noreply, socket}
@@ -87,14 +101,17 @@ defmodule LiveViewStudioWeb.LightLive do
   def handle_event("down", _payload, socket) do
     # brightness = socket.assigns.brightness - 10
     # socket = assign(socket, brightness: brightness)
-    socket = update(socket, :brightness, &max(&1 - 10, 0))
+    # socket = update(socket, :brightness, &max(&1 - 10, 0))
+    socket = bright_down(socket)
     {:noreply, socket}
   end
 
   def handle_event("up", _payload, socket) do
     # brightness = socket.assigns.brightness + 10
     # socket = assign(socket, brightness: brightness)
-    socket = update(socket, :brightness, &min(&1 + 10, 100))
+
+    # socket = update(socket, :brightness, &min(&1 + 10, 100))
+    socket = bright_up(socket)
     {:noreply, socket}
   end
 
@@ -124,6 +141,14 @@ defmodule LiveViewStudioWeb.LightLive do
       assign(socket, temperature: new_temperature, hex_temperature: temp_color(new_temperature))
 
     {:noreply, socket}
+  end
+
+  defp bright_up(socket) do
+    update(socket, :brightness, &min(&1 + 10, 100))
+  end
+
+  defp bright_down(socket) do
+    update(socket, :brightness, &max(&1 - 10, 0))
   end
 
   defp temp_color("3000"), do: "#F1C40D"

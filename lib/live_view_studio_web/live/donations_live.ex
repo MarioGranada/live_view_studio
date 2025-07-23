@@ -61,6 +61,36 @@ defmodule LiveViewStudioWeb.DonationsLive do
     """
   end
 
+  def handle_event("handle-keyup", %{"key" => "ArrowLeft"}, socket) do
+    if socket.assigns.options.page > 1 do
+      socket =
+        push_patch(socket,
+          to: ~p"/donations?#{%{socket.assigns.options | page: socket.assigns.options.page - 1}}"
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("handle-keyup", %{"key" => "ArrowRight"}, socket) do
+    if more_pages?(socket.assigns.options, socket.assigns.donation_count) do
+      socket =
+        push_patch(socket,
+          to: ~p"/donations?#{%{socket.assigns.options | page: socket.assigns.options.page + 1}}"
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("handle-window-keyup", _, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("select-per-page", %{"per-page" => per_page}, socket) do
     params = %{socket.assigns.options | per_page: per_page}
     socket = push_patch(socket, to: ~p"/donations?#{params}")
