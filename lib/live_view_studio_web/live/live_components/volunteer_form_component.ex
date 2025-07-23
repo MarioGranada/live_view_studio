@@ -24,7 +24,7 @@ defmodule LiveViewStudioWeb.VolunteerFormComponent do
       </div>
       <.form for={@form} phx-submit="save" phx-change="validate" phx-target={@myself}>
         <.input field={@form[:name]} placeholder="Name" autocomplete="off" phx-debounce="2000" />
-        <.input field={@form[:phone]} type="tel" placeholder="Phone" autocomplete="off" phx-debounce="blur" />
+        <.input field={@form[:phone]} type="tel" placeholder="Phone" autocomplete="off" phx-debounce="blur" phx-hook="PhoneInputHook" />
         <.button phx-disable-with="Saving...">Check In</.button>
       </.form>
     </div>

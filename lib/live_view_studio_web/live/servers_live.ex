@@ -149,7 +149,10 @@ defmodule LiveViewStudioWeb.ServersLive do
           <% else %>
           <div class="server">
             <div class="header">
+            <a id={"copy-link-#{@selected_server.id}"} data-content={url(@socket, ~p"/servers/?id=#{@selected_server}")} phx-hook="ClipboardHook">
               <h2><%= @selected_server.name %></h2>
+
+            </a>
               <%!-- <span class={@selected_server.status}>
                 <%= @selected_server.status %>
               </span> --%>
