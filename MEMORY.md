@@ -19,7 +19,7 @@ _Last updated: 2026-11-19_
 
 ## Known limitations and follow-ups
 
-- Free app scales to zero after 30 days without a deploy; redeploy monthly (a scheduled GitHub Action needs a Gigalixir API key secret).
+- Free app scales to zero after 30 days without a deploy; `gigalixir-redeploy.yml` redeploys monthly (needs `GIGALIXIR_EMAIL` / `GIGALIXIR_API_KEY` secrets). GitHub disables scheduled workflows after 60 days without repo activity.
 - Dev database credentials are personal and hardcoded.
 - LiveView is pinned to a release candidate.
 - `athletes_test.exs` and `boats_test.exs` have duplicate `describe` blocks; one airports test fails.
@@ -33,7 +33,6 @@ _Last updated: 2026-11-19_
 
 ## Next steps
 
-- Add the monthly redeploy workflow.
 - Fix the duplicated test modules.
 - Move dev database credentials to environment variables.
 

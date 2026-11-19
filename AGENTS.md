@@ -40,7 +40,7 @@ Compact guide for future OpenCode sessions. It records only the facts an agent i
 
 ## Deployment
 
-- Hosted on Gigalixir (app `liveview-studio`, https://liveview-studio.gigalixirapp.com). Deploy with `git push gigalixir main`; pushing to GitHub does not deploy.
+- Hosted on Gigalixir (app `liveview-studio`, https://liveview-studio.gigalixirapp.com). Deploy with `git push --force gigalixir main`; pushing to GitHub does not deploy. `--force` is needed because the monthly workflow (`.github/workflows/gigalixir-redeploy.yml`) pushes an empty commit that exists only on the Gigalixir remote.
 - Migrations run on boot through the app's Repo pool. Do not add a separate `bin/... eval` migrate or seed step: the free database allows two connections and the app holds both.
 - `LiveViewStudio.DemoReset` seeds an empty database and truncates every table except `schema_migrations` at 04:00 UTC. Keep `priv/repo/seeds.exs` self-contained and under the free tier's 10,000-row cap.
 - Production mail uses `Swoosh.Adapters.Logger`; no emails are sent.

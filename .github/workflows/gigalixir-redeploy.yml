@@ -1,0 +1,56 @@
+# Gigalixir scales free apps to zero after 30 days without a deploy.
+# This redeploys main monthly (and on demand) to keep the demo running.
+# Needs repo secrets GIGALIXIR_EMAIL and GIGALIXIR_API_KEY.
+name: Gigalixir monthly redeploy
+
+on:
+  schedule:
+    - cron: "0 6 1 * *" # 06:00 UTC on the 1st of each month
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gigalixir-deploy
+  cancel-in-progress: false
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Gigalixir
+        env:
+          GIGALIXIR_EMAIL: ${{ secrets.GIGALIXIR_EMAIL }}
+          GIGALIXIR_API_KEY: ${{ secrets.GIGALIXIR_API_KEY }}
+          GIGALIXIR_APP: liveview-studio
+        run: |
+          if [ -z "$GIGALIXIR_EMAIL" ] || [ -z "$GIGALIXIR_API_KEY" ]; then
+            echo "::error::Set the GIGALIXIR_EMAIL and GIGALIXIR_API_KEY repository secrets."
+            exit 1
+          fi
+          umask 077
+          printf 'machine git.gigalixir.com\n  login %s\n  password %s\n' \
+            "$GIGALIXIR_EMAIL" "$GIGALIXIR_API_KEY" > ~/.netrc
+
+          # An unchanged commit would not trigger a build, so push an empty
+          # commit that exists only on the Gigalixir remote.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: scheduled redeploy $(date -u +%F)"
+          git push --force "https://git.gigalixir.com/${GIGALIXIR_APP}.git" HEAD:refs/heads/main
+
+      - name: Check the app responds
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://liveview-studio.gigalixirapp.com/ || true)
+            [ "$code" = "200" ] && echo "App is up" && exit 0
+            sleep 10
+          done
+          echo "::error::App did not return 200 within 5 minutes (last: $code)"
+          exit 1

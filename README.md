@@ -111,7 +111,7 @@ The generated `UserAuth` module handles session cookies, current-user assignment
 
 - **Live:** https://liveview-studio.gigalixirapp.com (Gigalixir app `liveview-studio`, free tier, GCP `us-central1`).
 - Gigalixir builds an Elixir release from the pushed branch. `elixir_buildpack.config` and `phoenix_static_buildpack.config` pin Elixir, Erlang and Node, and `assets/package.json` runs `mix assets.deploy` during the build.
-- Deploy with `git push gigalixir main` (the `gigalixir` remote is added by `gigalixir create` or `gigalixir git:remote liveview-studio`).
+- Deploy with `git push --force gigalixir main` (the `gigalixir` remote is added by `gigalixir create` or `gigalixir git:remote liveview-studio`).
 - On boot the app runs pending migrations (`Ecto.Migrator` in the supervision tree) and, if the database is empty, loads `priv/repo/seeds.exs`. No separate migrate step is needed. That matters on the free database, which allows only two connections, both held by the app's pool.
 - `LiveViewStudio.DemoReset` restores the seed every day at 04:00 UTC.
 
@@ -126,7 +126,7 @@ Environment variables (`gigalixir config`):
 | `PHX_HOST` | Optional | Public host; defaults to `<APP_NAME>.gigalixirapp.com`. |
 | `DATABASE_SSL` | Optional | `verify` (default), `true` (no certificate check) or `false`. |
 
-Free-tier limits: the database holds up to 10,000 rows (the seed is about 1,230) and has no backups, and Gigalixir scales a free app to zero if it is not deployed for 30 days, so redeploy at least monthly.
+Free-tier limits: the database holds up to 10,000 rows (the seed is about 1,230) and has no backups, and Gigalixir scales a free app to zero if it is not deployed for 30 days. `.github/workflows/gigalixir-redeploy.yml` redeploys `main` on the 1st of every month (or on demand from the Actions tab) using the `GIGALIXIR_EMAIL` and `GIGALIXIR_API_KEY` repository secrets. It pushes an empty commit only to the Gigalixir remote, so manual deploys afterwards need `git push --force gigalixir main`.
 
 ## Notes and limitations
 
