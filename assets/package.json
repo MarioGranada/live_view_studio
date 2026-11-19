@@ -1,0 +1,7 @@
+{
+  "name": "live_view_studio-assets",
+  "private": true,
+  "scripts": {
+    "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*"
+  }
+}

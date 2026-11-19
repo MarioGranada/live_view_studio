@@ -30,11 +30,25 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  # DATABASE_SSL: "verify" (default, checks the server certificate),
+  # "true" (encrypted, no certificate check) or "false" (plain TCP).
+  ssl =
+    case System.get_env("DATABASE_SSL", "verify") do
+      "false" -> false
+      "true" -> [verify: :verify_none]
+      _ -> [verify: :verify_peer, cacerts: :public_key.cacerts_get()]
+    end
+
   config :live_view_studio, LiveViewStudio.Repo,
-    # ssl: true,
+    ssl: ssl,
     url: database_url,
+    # Gigalixir sets POOL_SIZE to match the database plan (2 on the free tier).
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
+
+  config :live_view_studio,
+    migrate_on_boot: System.get_env("MIGRATE_ON_BOOT") in ~w(true 1),
+    demo_reset: System.get_env("DEMO_RESET") in ~w(true 1)
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -48,7 +62,12 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  # Gigalixir exposes the app name as APP_NAME; the default domain follows it.
+  host =
+    System.get_env("PHX_HOST") ||
+      (System.get_env("APP_NAME") && "#{System.get_env("APP_NAME")}.gigalixirapp.com") ||
+      raise "environment variable PHX_HOST is missing"
+
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :live_view_studio, LiveViewStudioWeb.Endpoint,
@@ -61,7 +80,12 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
-    secret_key_base: secret_key_base
+    secret_key_base: secret_key_base,
+    server: true
+
+  # There is no mail provider on the demo: account emails (confirmation,
+  # password reset) are written to the log instead of being sent.
+  config :live_view_studio, LiveViewStudio.Mailer, adapter: Swoosh.Adapters.Logger
 
   # ## SSL Support
   #
