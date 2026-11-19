@@ -15,7 +15,7 @@ This document defines the non-negotiable foundations for this repository. Read i
 
 | Layer | Choice | Rationale |
 | --- | --- | --- |
-| Language | Elixir 1.14+ | The course targets current Phoenix and LiveView. |
+| Language | Elixir 1.18 / OTP 27 | Pinned for the Gigalixir build; the course targets current Phoenix and LiveView. |
 | Framework | Phoenix 1.7 | HTTP endpoints, channels, PubSub, and LiveView integration. |
 | UI | Phoenix LiveView 1.0 (release candidate) | Server-rendered interactive UI over a persistent socket. |
 | Database | Ecto + PostgreSQL | Persistence for boats, servers, donations, and other demos. |
@@ -32,7 +32,7 @@ A learning playground for Phoenix LiveView concepts. Each route is intentionally
 
 ### 2. Environment Isolation
 
-- This project has no runtime secrets. Do not introduce `.env` files unless a real secret or environment-specific URL appears.
+- The only runtime secrets are `SECRET_KEY_BASE` and `DATABASE_URL`, held in the host's config (`gigalixir config`). Do not introduce `.env` files.
 - If configuration is added, use environment variables and document them in the README.
 - Never commit keys, tokens, database URLs, or credentials.
 
@@ -62,9 +62,9 @@ A learning playground for Phoenix LiveView concepts. Each route is intentionally
 
 ### 7. Deployment
 
-- Deploy as a Phoenix release/container with managed PostgreSQL.
-- Configure `DATABASE_URL`, `SECRET_KEY_BASE`, `PHX_HOST`, and `PORT` in the host environment.
-- Run migrations as a release step and keep `mix assets.deploy` in the build.
+- Deploy as a Phoenix release on Gigalixir with its free PostgreSQL; `mix assets.deploy` runs in the build.
+- Configure secrets in the host environment, never in the repository.
+- Migrations run on boot inside the app's supervision tree, and the public demo resets to the seed nightly (`DEMO_RESET`). Any new table is wiped by that reset, so its demo must work from seed data.
 
 ## What to Avoid
 

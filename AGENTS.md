@@ -13,7 +13,7 @@ Compact guide for future OpenCode sessions. It records only the facts an agent i
 
 ## Requirements
 
-- Elixir 1.14 or newer and a compatible Erlang/OTP release.
+- Elixir 1.18 on Erlang/OTP 27, matching production (`elixir_buildpack.config`). Elixir 1.20 cannot compile `faker` 0.17.
 - PostgreSQL 13+ running locally.
 - Hex and Rebar (`mix local.hex`, `mix local.rebar`).
 
@@ -21,7 +21,7 @@ Compact guide for future OpenCode sessions. It records only the facts an agent i
 
 - No environment variables are required for local development.
 - Development database credentials live in `config/dev.exs` and are currently personal values; do not treat them as portable defaults.
-- Production requires `DATABASE_URL`, `SECRET_KEY_BASE`, `PHX_HOST`, and `PORT`; see `config/runtime.exs`.
+- Production requires `DATABASE_URL` and `SECRET_KEY_BASE`. Optional: `PHX_HOST` (defaults to `<APP_NAME>.gigalixirapp.com`), `DATABASE_SSL`, `MIGRATE_ON_BOOT`, `DEMO_RESET`. See `config/runtime.exs` and the README deployment table.
 
 ## Architecture
 
@@ -37,6 +37,13 @@ Compact guide for future OpenCode sessions. It records only the facts an agent i
 - Use `mix setup` for a fresh checkout and `mix ecto.reset` when the schema or seeds change.
 - Run `mix test` before finishing a change.
 - Rebuild assets with `mix assets.build` after editing Tailwind classes or hooks.
+
+## Deployment
+
+- Hosted on Gigalixir (app `liveview-studio`, https://liveview-studio.gigalixirapp.com). Deploy with `git push gigalixir main`; pushing to GitHub does not deploy.
+- Migrations run on boot through the app's Repo pool. Do not add a separate `bin/... eval` migrate or seed step: the free database allows two connections and the app holds both.
+- `LiveViewStudio.DemoReset` seeds an empty database and truncates every table except `schema_migrations` at 04:00 UTC. Keep `priv/repo/seeds.exs` self-contained and under the free tier's 10,000-row cap.
+- Production mail uses `Swoosh.Adapters.Logger`; no emails are sent.
 
 ## Conventions and gotchas
 
